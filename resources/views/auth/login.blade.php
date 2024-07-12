@@ -39,9 +39,31 @@
                 </a>
             @endif
 
-            <x-primary-button class="ms-3">
+            <x-primary-button class="ms-3" id="signInBtn">
                 {{ __('Log in') }}
             </x-primary-button>
+
+            <!-- recaptcha -->
+            @if($recaptchaConfig['is_active'])
+                <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
+            @endif
         </div>
     </form>
+
+    @if($recaptchaConfig['is_active'])
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://www.google.com/recaptcha/api.js?render={{$recaptchaConfig['site_key']}}"></script>
+        <script>
+            "use strict";
+            $('#signInBtn').click(function (e) {
+                e.preventDefault();
+                grecaptcha.ready(function () {
+                    grecaptcha.execute('{{$recaptchaConfig['site_key']}}', {action: 'submit'}).then(function (token) {
+                        document.getElementById('g-recaptcha-response').value = token;
+                        document.querySelector('form').submit();
+                    });
+                });
+            });
+        </script>
+    @endif
 </x-guest-layout>
